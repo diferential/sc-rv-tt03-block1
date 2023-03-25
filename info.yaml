@@ -18,9 +18,9 @@ yaml_version: 3.0
 # Here is a great example: https://github.com/davidsiaw/tt02-davidsiaw-stackcalc/blob/38c5647f83aad2aec675d566aa3d67b98f0aac81/info.yaml
 documentation: 
   author:       "Emilian Miron"
-  title:        "RiscV Scan Chain based CPU -- block 1 -- decode"
+  title:        "RiscV Scan Chain based CPU -- block 1 -- clocking"
   language:     "Verilog"
-  description:  ""
+  description:  "RiscV Scan Chain based CPU -- block 1 -- clocking"
 
 # Longer description of how the project works. You can use standard markdown format.
   how_it_works: |
