@@ -96,7 +96,7 @@ module Scriv1Mailbox (
 	wire resetArea_rst_reached;
 	wire resetArea_not_rst_reached;
 	wire resetArea_rst_asserted;
-	reg [5:0] c_state_cnt;
+	reg [7:0] c_state_cnt;
 	wire c_state_cnt_zero;
 	wire c_fsm_wantExit;
 	reg c_fsm_wantStart;
@@ -118,7 +118,7 @@ module Scriv1Mailbox (
 	reg [6:0] _zz_io_tt_out_4;
 	wire when_Scriv1Mailbox_l161_1;
 	wire when_Scriv1Mailbox_l162_1;
-	wire [5:0] _zz_c_state_cnt;
+	wire [7:0] _zz_c_state_cnt;
 	wire [3:0] switch_Scriv1Mailbox_l135;
 	wire when_StateMachine_l234;
 	Scriv1BB_RSFF ffSerDataIn(
@@ -303,7 +303,7 @@ module Scriv1Mailbox (
 			c_fsm_stateNext = c_fsm_enumDef_stateSerialIn;
 	end
 	assign when_Scriv1Mailbox_l161 = c_fsm_outCyclesLeft == 4'b0000;
-	assign when_Scriv1Mailbox_l162 = io_outbox_valid && (c_state_cnt < 6'h0e);
+	assign when_Scriv1Mailbox_l162 = io_outbox_valid && (8'h0e < c_state_cnt);
 	always @(*)
 		if (when_Scriv1Mailbox_l161)
 			_zz_io_tt_out_1 = 2'b00;
@@ -316,7 +316,7 @@ module Scriv1Mailbox (
 			_zz_io_tt_out = c_fsm_outCyclesLeft == 4'b0001;
 	assign _zz_io_tt_out_2 = {_zz_io_tt_out_1, _zz_io_tt_out};
 	assign when_Scriv1Mailbox_l161_1 = c_fsm_outCyclesLeft == 4'b0000;
-	assign when_Scriv1Mailbox_l162_1 = io_outbox_valid && (c_state_cnt < 6'h04);
+	assign when_Scriv1Mailbox_l162_1 = io_outbox_valid && (8'h04 < c_state_cnt);
 	always @(*)
 		if (when_Scriv1Mailbox_l161_1)
 			_zz_io_tt_out_4 = 7'h00;
@@ -327,7 +327,7 @@ module Scriv1Mailbox (
 			_zz_io_tt_out_3 = 1'b0;
 		else
 			_zz_io_tt_out_3 = c_fsm_outCyclesLeft == 4'b0001;
-	assign _zz_c_state_cnt = {2'd0, io_inbox_payload[7:4]} <<< 2;
+	assign _zz_c_state_cnt = io_inbox_payload[11:4];
 	assign switch_Scriv1Mailbox_l135 = io_inbox_payload[3:0];
 	assign when_StateMachine_l234 = c_fsm_stateReg != c_fsm_enumDef_stateSerialIn;
 	assign masterClock_clk_1 = masterClock_clk;
@@ -341,7 +341,7 @@ module Scriv1Mailbox (
 			resetArea_cnt <= 3'b000;
 	always @(posedge masterClock_clk)
 		if (masterClock_reset) begin
-			c_state_cnt <= 6'h00;
+			c_state_cnt <= 8'h00;
 			c_fsm_inbox_storage <= 28'h0000000;
 			c_fsm_outbox <= 28'h0000000;
 			c_fsm_outCyclesLeft <= 4'b0000;
@@ -349,7 +349,7 @@ module Scriv1Mailbox (
 			c_fsm_stateReg <= c_fsm_enumDef_stateSerialIn;
 		end
 		else begin
-			c_state_cnt <= c_state_cnt - 6'h01;
+			c_state_cnt <= c_state_cnt - 8'h01;
 			c_fsm_stateReg <= c_fsm_stateNext;
 			case (c_fsm_stateReg)
 				c_fsm_enumDef_stateChainOutput:
@@ -364,8 +364,10 @@ module Scriv1Mailbox (
 									c_fsm_outCyclesLeft <= 4'b1110;
 								end
 							end
-							else
+							else begin
+								c_fsm_outCyclesLeft <= c_fsm_outCyclesLeft - 4'b0001;
 								c_fsm_outbox <= {c_fsm_outbox[25:0], c_fsm_outbox[27:26]};
+							end
 						end
 				c_fsm_enumDef_stateOutsideOutput:
 					if (when_Scriv1Mailbox_l161_1) begin
@@ -374,8 +376,10 @@ module Scriv1Mailbox (
 							c_fsm_outCyclesLeft <= 4'b0100;
 						end
 					end
-					else
+					else begin
+						c_fsm_outCyclesLeft <= c_fsm_outCyclesLeft - 4'b0001;
 						c_fsm_outbox <= {c_fsm_outbox[20:0], c_fsm_outbox[27:21]};
+					end
 				default: begin
 					if (ffSerDataPresent_q)
 						c_fsm_inbox_storage <= {c_fsm_inbox_storage[26:0], ffSerDataIn_q};
