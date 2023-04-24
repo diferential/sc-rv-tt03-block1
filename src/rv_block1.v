@@ -378,7 +378,7 @@ module Scriv1Mailbox (
 						c_fsm_outbox <= {c_fsm_outbox[20:0], c_fsm_outbox[27:21]};
 				default: begin
 					if (ffSerDataPresent_q)
-						c_fsm_inbox_storage <= {c_fsm_inbox_storage[27:1], ffSerDataIn_q};
+						c_fsm_inbox_storage <= {c_fsm_inbox_storage[26:0], ffSerDataIn_q};
 					if (io_inbox_valid)
 						case (switch_Scriv1Mailbox_l135)
 							4'b0001: c_state_cnt <= _zz_c_state_cnt;
