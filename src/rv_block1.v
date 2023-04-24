@@ -14,11 +14,11 @@ module diferential_rvb1 (
 	wire [3:0] mbox_io_address;
 	wire mbox_masterClock_clk_1;
 	wire mbox_masterClock_reset_1;
-	wire [15:0] _zz_c_counter;
-	reg [15:0] c_counter;
+	wire [23:0] _zz_c_counter;
+	reg [23:0] c_counter;
 	reg [0:0] c_inc_on;
 	wire [3:0] c_cmd;
-	assign _zz_c_counter = {15'd0, c_inc_on};
+	assign _zz_c_counter = {23'd0, c_inc_on};
 	Scriv1Mailbox mbox(
 		.io_tt_in(io_in[7:0]),
 		.io_tt_out(mbox_io_tt_out[7:0]),
@@ -34,21 +34,19 @@ module diferential_rvb1 (
 		.masterClock_reset_1(mbox_masterClock_reset_1)
 	);
 	assign io_out = mbox_io_tt_out;
-	assign mbox_io_outbox_payload = {8'h00, c_counter, 4'b0000};
+	assign mbox_io_outbox_payload = {c_counter, 4'b0000};
 	assign c_cmd = mbox_io_inbox_payload[3:0];
 	always @(posedge mbox_masterClock_clk_1)
 		if (mbox_masterClock_reset_1) begin
-			c_counter <= 16'h0000;
+			c_counter <= 24'h000000;
 			c_inc_on <= 1'b0;
 		end
-		else if (mbox_io_inbox_valid) begin
+		else if (mbox_io_inbox_valid)
 			case (c_cmd)
 				4'b1010: c_inc_on <= mbox_io_inbox_payload[4];
-				default:
-					;
+				4'b1011: c_counter <= mbox_io_inbox_payload[27:4];
+				default: c_counter <= c_counter ^ mbox_io_inbox_payload[27:4];
 			endcase
-			c_counter <= c_counter ^ mbox_io_inbox_payload[19:4];
-		end
 		else
 			c_counter <= c_counter + _zz_c_counter;
 endmodule
